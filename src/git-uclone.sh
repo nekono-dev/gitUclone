@@ -97,25 +97,31 @@ ucloning() {
     shift
     REPO_URL="$1"
     shift
-    HOST_ALIAS="github.com.$USERNAME"
     PROFILE_FILE="$PROFILE_DIR/$USERNAME"
-
-    if ! grep -q "Host $HOST_ALIAS" "$CONFIG_FILE" 2>/dev/null; then
-        echo "❌ Error: SSH config for '$USERNAME' not found."
-        echo "Run: git uclone --setup --user <USERNAME> --key <PRIVATE_KEY_PATH> [--email <EMAIL>]"
-        exit 1
-    fi
 
     if [[ ! -f "$PROFILE_FILE" ]]; then
         echo "❌ Error: Git profile for '$USERNAME' not found."
         exit 1
     fi
 
-    MODIFIED_REPO=$(echo "$REPO_URL" | sed "s/github\.com/$HOST_ALIAS/")
+    # HTTPS or SSH URLか判定
+    if [[ "$REPO_URL" =~ ^https:// ]]; then
+        git clone "$REPO_URL" "$@"
+        CLONE_DIR=$(basename "$REPO_URL" .git)
+    else
+        HOST_ALIAS="github.com.$USERNAME"
+        CONFIG_FILE=~/.ssh/config
+        if ! grep -q "Host $HOST_ALIAS" "$CONFIG_FILE" 2>/dev/null; then
+            echo "❌ Error: SSH config for '$USERNAME' not found."
+            echo "Run: git uclone --setup --user <USERNAME> --key <PRIVATE_KEY_PATH> [--email <EMAIL>]"
+            exit 1
+        fi
+        MODIFIED_REPO=$(echo "$REPO_URL" | sed "s/github\.com/$HOST_ALIAS/")
+        git clone "$MODIFIED_REPO" "$@"
+        CLONE_DIR=$(basename "$REPO_URL" .git)
+    fi
 
-    git clone "$MODIFIED_REPO" "$@"
-    CLONE_DIR=$(basename "$REPO_URL" .git)
-
+    # Git user設定の適用
     if [[ -d "$CLONE_DIR/.git" ]]; then
         GIT_EMAIL=$(grep "^EMAIL=" "$PROFILE_FILE" | cut -d'=' -f2)
         if [[ -n "$GIT_EMAIL" ]]; then
@@ -128,6 +134,7 @@ ucloning() {
         fi
     fi
 }
+
 
 # コマンド分岐
 if [[ "$1" == "--help" || "$1" == "help" ]]; then

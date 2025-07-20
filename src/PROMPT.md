@@ -70,3 +70,20 @@ setupコマンドについて、パラメータは引数ではなくパラメー
 ```md
 上記について、OSS公開を前提のREADME.mdを作成せよ
 ```
+
+```md
+bashのテストをbashで作成せよ。正常性試験は[Positive]テスト、準正常および異常系は[Negative]テストとすること。
+
+1. `.ssh/config`および`~/.git-uclone-users`を初期化する。`.ssh/config`および`~/.git-uclone-users`はバックアップすること。
+2. 以下のユーザをセットアップする
+    ユーザ名: nekono
+    秘密鍵: .ssh/nekono_key
+    メールアドレス: `91360587+nekono-dev@users.noreply.github.com`
+3. テスト用ディレクトリへ`https://github.com/nekono-dev/gitUclone.git`をクローンする。
+4. クローンしたリポジトリへ入り、`git.config`にユーザとemail設定があることを確認する。
+5. クローンしたディレクトリを削除する。
+6. テスト用ディレクトリへ`git@github.com:nekono-dev/gitUclone.git`をクローンする。
+7. クローンしたリポジトリへ入り、`git.config`にユーザとemail設定があることを確認する。
+8. クローンしたディレクトリを削除する。
+9. バックアップしたファイル・ディレクトリをもとに戻す
+```
